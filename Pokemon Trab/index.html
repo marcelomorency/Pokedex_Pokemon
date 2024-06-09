@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personality Pokémon</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Descubra seu Pokémon</h1>
+    <form id="pokemonForm">
+        <label for="name">Nome:</label><br>
+        <input type="text" id="name" name="name" required><br>
+        <label for="birthdate">Data de Nascimento:</label><br>
+        <input type="date" id="birthdate" name="birthdate" required><br>
+        <label for="personality_type">Tipo de Personalidade:</label><br>
+        <select id="personality_type" name="personality_type" required>
+            <option value="Extroversão">Extroversão</option>
+            <option value="Neuroticismo">Neuroticismo</option>
+            <option value="Abertura à experiência">Abertura à experiência</option>
+            <option value="Amabilidade">Amabilidade</option>
+            <option value="Conscienciosidade">Conscienciosidade</option>
+            <option value="INTJ (Arquiteto)">INTJ (Arquiteto)</option>
+            <option value="INFP (Mediador)">INFP (Mediador)</option>
+            <option value="ENFP (Ativista)">ENFP (Ativista)</option>
+            <option value="ESTJ (Executivo)">ESTJ (Executivo)</option>
+            <option value="ISFJ (Defensor)">ISFJ (Defensor)</option>
+            <option value="Pensador (Thinking)">Pensador (Thinking)</option>
+            <option value="Sentimental (Feeling)">Sentimental (Feeling)</option>
+            <option value="Sensitivo (Sensing)">Sensitivo (Sensing)</option>
+            <option value="Intuitivo (Intuitive)">Intuitivo (Intuitive)</option>
+            <option value="Tipo 1 (Reformador)">Tipo 1 (Reformador)</option>
+            <option value="Tipo 2 (Ajudante)">Tipo 2 (Ajudante)</option>
+            <option value="Tipo 3 (Realizador)">Tipo 3 (Realizador)</option>
+            <option value="Tipo 4 (Individualista)">Tipo 4 (Individualista)</option>
+            <option value="Tipo 5 (Investigador)">Tipo 5 (Investigador)</option>
+            <option value="Carismático">Carismático</option>
+        </select><br>
+        <button type="submit">Descobrir Pokémon</button>
+    </form>
+    <div class="pokemon-info" id="pokemonInfo"></div>
+
+    <script>
+        document.getElementById('pokemonForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const birthdate = document.getElementById('birthdate').value;
+            const personalityType = document.getElementById('personality_type').value;
+
+            fetch('http://127.0.0.1:5000/get_pokemon', { // Certifique-se de que a URL está correta
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    birthdate: birthdate,
+                    personality_type: personalityType
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const pokemonInfo = document.getElementById('pokemonInfo');
+                pokemonInfo.innerHTML = `
+                    <h2>Seu Pokémon</h2>
+                    <p><strong>Nome:</strong> ${data.user.name}</p>
+                    <p><strong>Data de Nascimento:</strong> ${data.user.birthdate}</p>
+                    <p><strong>Tipo de Personalidade:</strong> ${data.user.personality_type}</p>
+                    <h3>Pokémon: ${data.pokemon.name}</h3>
+                    <p><strong>Tipo:</strong> ${data.pokemon.type}</p>
+                    <p><strong>Habilidades:</strong> ${data.pokemon.abilities.join(', ')}</p>
+                    <p><strong>Experiência Base:</strong> ${data.pokemon.base_experience}</p>
+                    <p><strong>Por que este Pokémon?</strong> ${data.explanation}</p>
+                    <img src="${data.pokemon.image_url}" alt="${data.pokemon.name}">
+                `;
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        });
+    </script>
+</body>
+</html>
